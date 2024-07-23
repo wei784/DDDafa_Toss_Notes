@@ -1,42 +1,34 @@
 #!/bin/bash
 
-dir="/etc/apt/sources.list.d/"
-file="/etc/apt/sources.list"
-backup_dir="/etc/apt/backup/"
+# 备份原有的 sources.list 文件
+cp /etc/apt/sources.list /etc/apt/sources.list.bak
 
-# 创建备份目录
-mkdir -p "$backup_dir"
+# 更新 sources.list 文件
+cat <<'EOF' > /etc/apt/sources.list
+deb https://mirrors.ustc.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian-security bookworm-security main contrib non-free non-free-firmware
+EOF
 
-# 备份sources.list.d目录
-if [ -d "$dir" ]; then
-  echo "Backing up directory $dir to $backup_dir..."
-  cp -r "$dir" "$backup_dir"
-  echo "Directory backed up."
+# 备份原有的 pve-enterprise.list 文件
+if [ -f /etc/apt/sources.list.d/pve-enterprise.list ]; then
+  cp /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/pve-enterprise.list.bak
 fi
 
-# 备份sources.list文件
-if [ -f "$file" ]; then
-  echo "Backing up file $file to $backup_dir..."
-  cp "$file" "$backup_dir"
-  echo "File backed up."
+# 更新 pve-enterprise.list 文件
+cat <<'EOF' > /etc/apt/sources.list.d/pve-enterprise.list
+deb https://mirrors.cernet.edu.cn/proxmox/debian/pve bookworm pve-no-subscription
+EOF
+
+# 备份原有的 ceph.list 文件
+if [ -f /etc/apt/sources.list.d/ceph.list ]; then
+  cp /etc/apt/sources.list.d/ceph.list /etc/apt/sources.list.d/ceph.list.bak
 fi
 
-# 删除sources.list.d目录
-if [ -d "$dir" ]; then
-  echo "Deleting directory $dir..."
-  rm -rf "$dir"
-  echo "Directory deleted."
-else
-  echo "Directory $dir does not exist. Skipping deletion."
-fi
+# 更新 ceph.list 文件
+cat <<'EOF' > /etc/apt/sources.list.d/ceph.list
+deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy bookworm no-subscription
+EOF
 
-# 替换sources.list文件内容
-echo "Replacing content of $file..."
-
-echo "deb https://mirrors.ustc.edu.cn/debian/ bookworm main contrib non-free non-free-firmware" > "$file"
-echo "deb https://mirrors.ustc.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware" >> "$file"
-echo "deb https://mirrors.ustc.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware" >> "$file"
-echo "deb https://mirrors.ustc.edu.cn/debian-security bookworm-security main" >> "$file"
-echo "deb https://mirrors.ustc.edu.cn/proxmox/debian bookworm pve-no-subscription" >> "$file"
-
-echo "Content replaced."
+echo "国内源替换完成并已备份原有文件。"
