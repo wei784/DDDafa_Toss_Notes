@@ -1,24 +1,27 @@
 #!/bin/bash
 
-backup_dir="/etc/apt/backup/"
-dir="/etc/apt/sources.list.d/"
-file="/etc/apt/sources.list"
-
-# 恢复sources.list.d目录
-if [ -d "${backup_dir}sources.list.d" ]; then
-  echo "Restoring directory $dir from $backup_dir..."
-  rm -rf "$dir"
-  cp -r "${backup_dir}sources.list.d" "$dir"
-  echo "Directory restored."
+# 还原 /etc/apt/sources.list
+if [ -f /etc/apt/sources.list.bak ]; then
+  mv /etc/apt/sources.list.bak /etc/apt/sources.list
+  echo "/etc/apt/sources.list 已还原。"
 else
-  echo "Backup of directory $dir does not exist. Skipping restoration."
+  echo "未找到 /etc/apt/sources.list.bak 备份文件，无法还原。"
 fi
 
-# 恢复sources.list文件
-if [ -f "${backup_dir}$(basename $file)" ]; then
-  echo "Restoring file $file from $backup_dir..."
-  cp "${backup_dir}$(basename $file)" "$file"
-  echo "File restored."
+# 还原 /etc/apt/sources.list.d/pve-enterprise.list
+if [ -f /etc/apt/sources.list.d/pve-enterprise.list.bak ]; then
+  mv /etc/apt/sources.list.d/pve-enterprise.list.bak /etc/apt/sources.list.d/pve-enterprise.list
+  echo "/etc/apt/sources.list.d/pve-enterprise.list 已还原。"
 else
-  echo "Backup of file $file does not exist. Skipping restoration."
+  echo "未找到 /etc/apt/sources.list.d/pve-enterprise.list.bak 备份文件，无法还原。"
 fi
+
+# 还原 /etc/apt/sources.list.d/ceph.list
+if [ -f /etc/apt/sources.list.d/ceph.list.bak ]; then
+  mv /etc/apt/sources.list.d/ceph.list.bak /etc/apt/sources.list.d/ceph.list
+  echo "/etc/apt/sources.list.d/ceph.list 已还原。"
+else
+  echo "未找到 /etc/apt/sources.list.d/ceph.list.bak 备份文件，无法还原。"
+fi
+
+echo "备份还原完成。"
